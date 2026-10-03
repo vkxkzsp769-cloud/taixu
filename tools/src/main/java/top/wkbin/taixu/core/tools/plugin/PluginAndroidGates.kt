@@ -67,7 +67,7 @@ class SettingsPermissionRequester : PluginPermissionRequester {
 
         val pair: Pair<String?, String?> = when (capability) {
             PluginCapability.OVERLAY_WINDOW ->
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION to "package:$packageName(context)"
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION to "package:${context.packageName}"
             PluginCapability.ACCESSIBILITY_CONTROL ->
                 Settings.ACTION_ACCESSIBILITY_SETTINGS to null
             PluginCapability.USAGE_STATS ->
@@ -81,7 +81,6 @@ class SettingsPermissionRequester : PluginPermissionRequester {
         callback(if (opened) PluginGrantState.NEEDS_SYSTEM_SETTINGS else PluginGrantState.UNKNOWN)
     }
 
-    private fun packageName(context: Context): String = context.packageName
 
     private fun openSettings(context: Context, action: String, packageOrNothing: String?): Boolean {
         val intent = android.content.Intent(action).apply {

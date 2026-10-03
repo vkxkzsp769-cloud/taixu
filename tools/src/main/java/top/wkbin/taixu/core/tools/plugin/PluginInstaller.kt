@@ -151,7 +151,7 @@ class PluginInstaller(
     suspend fun uninstall(pluginId: String, nowMs: Long = System.currentTimeMillis()) {
         store.remove(pluginId)
         runCatching { codeDir(pluginId).deleteRecursively() }
-        runCatching { File(context.code_cacheDir, "plugin-$pluginId").deleteRecursively() }
+        runCatching { File(context.codeCacheDir, "plugin-$pluginId").deleteRecursively() }
         store.appendAudit(PluginAuditEvent(nowMs, pluginId, PluginAuditAction.UNINSTALL))
     }
 

@@ -49,7 +49,7 @@ class DexPluginLoader(
             ?: codeDir(manifest.id).listFiles()?.firstOrNull { it.extension in CODE_EXTENSIONS }
             ?: throw PluginLoadException("插件 ${manifest.id} 找不到代码包文件")
 
-        val optimizedDir = File(context.code_cacheDir, "plugin-${manifest.id}").apply { mkdirs() }
+        val optimizedDir = File(context.codeCacheDir, "plugin-${manifest.id}").apply { mkdirs() }
         val classLoader = try {
             DexClassLoader(codeFile.absolutePath, optimizedDir.absolutePath, null, javaClass.classLoader)
         } catch (e: Exception) {

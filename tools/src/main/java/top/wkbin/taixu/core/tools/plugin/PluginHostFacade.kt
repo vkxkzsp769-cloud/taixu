@@ -104,7 +104,7 @@ class PluginHostFacade(
         return probe.isCompanionInstalled(companion)
     }
 
-    private fun log(level: PluginLogLevel, message: String) {
+    private fun writeLog(level: PluginLogLevel, message: String) {
         val tag = "$TAG/${record.manifest.id}"
         when (level) {
             PluginLogLevel.DEBUG -> Log.d(tag, message)
