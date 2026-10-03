@@ -124,6 +124,8 @@ fun HomeScreen(
     onNavigate: (MainDestination) -> Unit,
     onOpenTerminal: () -> Unit,
     onOpenToolCenter: () -> Unit = {},
+    terminalPane: @Composable () -> Unit = {},
+    onDashboardModeChanged: (Boolean) -> Unit = {},
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
@@ -141,6 +143,10 @@ fun HomeScreen(
     val switchingDistro by viewModel.switchingDistro.collectAsStateWithLifecycle()
     val modeStatus by viewModel.executionModeStatus.collectAsStateWithLifecycle()
     val webChatStatus by viewModel.webChatStatus.collectAsStateWithLifecycle()
+    val dashboardMode by viewModel.dashboardMode.collectAsStateWithLifecycle()
+    val cockpitMode = dashboardMode == HomeDashboardMode.COCKPIT
+    // 玻璃主题的悬浮底栏由导航层绘制：把座舱状态上报给装配层，保证两种主题下四标签都能收起。
+    LaunchedEffect(cockpitMode) { onDashboardModeChanged(cockpitMode) }
 
     val allFilesPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -209,6 +215,23 @@ fun HomeScreen(
                 title = stringResource(R.string.home_dashboard_title),
                 statusText = "${metrics.linuxDistro} · ${metrics.cpuArch}",
                 actions = {
+                    // 右上角总开关：在「座舱层」与「经典完整界面」之间切换（原底部四标签的入口收在这里）。
+                    IconButton(
+                        onClick = viewModel::toggleDashboardMode,
+                        contentDescription = stringResource(
+                            if (cockpitMode) R.string.home_switch_to_classic else R.string.home_switch_to_cockpit,
+                        ),
+                    ) {
+                        RuntimeIcon(
+                            name = RuntimeIconName.Reverse,
+                            modifier = Modifier.size(20.dp),
+                            tint = if (cockpitMode) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                        )
+                    }
                     IconButton(
                         onClick = {
                             viewModel.refreshMetrics()
@@ -237,99 +260,116 @@ fun HomeScreen(
             )
         },
         bottomBar = {
-            if (!isLiquidGlassTheme) {
+            if (HomeDashboardPolicy.shouldShowStandardBottomBar(dashboardMode, isLiquidGlassTheme)) {
                 RuntimeBottomBar(MainDestination.Home, onNavigate)
             }
         },
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .liquidGlassContent()
-                .padding(top = innerPadding.calculateTopPadding())
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-                .padding(bottom = if (isLiquidGlassTheme) 104.dp else innerPadding.calculateBottomPadding() + 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // 1. 运行时引擎主状态卡片 (Status Banner)
-            RuntimeEngineStatusCard(
+        if (cockpitMode) {
+            // 座舱层：上半屏运行占用与利用率，下半屏可直接输入的终端；
+            // 环境与体检、大屏协作等面板保留在经典界面中，由右上角总开关进入。
+            HomeCockpitContent(
                 state = state,
                 metrics = metrics,
-                installedDistros = installedDistros,
-                activeDistroId = activeDistroId,
-                switchingDistro = switchingDistro,
                 modeStatus = modeStatus,
-                onSwitchDistro = viewModel::switchDistro,
-                onInitialize = viewModel::initializeRuntime,
-                onCancel = viewModel::cancelInitialization,
-                onOpenTerminal = onOpenTerminal,
-                onOpenModeSettings = { onNavigate(MainDestination.Settings) },
-            )
-
-            // 2. WebChat 电脑大屏协作卡片 (Dashboard Bridge Card)
-            WebChatDashboardCard(
-                status = webChatStatus,
-                onToggle = viewModel::toggleWebChat,
-            )
-
-            // 3. 运行与开发环境体检自愈中心 (TaiXu Doctor & Auto-Fix)
-            EnvironmentDoctorCard(
-                report = doctorReport,
-                isChecking = isCheckingDoctor,
-                isRepairing = isRepairing,
-                repairProgress = repairProgress,
-                runtimeReady = state is RuntimeState.Ready,
-                onStartAutoRepair = {
-                    if (doctorReport?.items?.any { it.id == "host_all_files_access" && it.status != DoctorStatus.HEALTHY } == true) {
-                        requestAllFilesAccess()
-                    }
-                    viewModel.startAutoRepair()
-                },
-                onCancelRepair = viewModel::cancelAutoRepair,
-                onRequestAllFilesAccess = requestAllFilesAccess,
-                onOpenToolCenter = onOpenToolCenter,
-            )
-
-            Row(
+                terminalPane = terminalPane,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Max),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    .fillMaxSize()
+                    .liquidGlassContent()
+                    .padding(top = innerPadding.calculateTopPadding())
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = innerPadding.calculateBottomPadding()),
+            )
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .liquidGlassContent()
+                    .padding(top = innerPadding.calculateTopPadding())
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .padding(bottom = if (isLiquidGlassTheme) 104.dp else innerPadding.calculateBottomPadding() + 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                // 内存指标
-                ResourceMetricCard(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    title = stringResource(R.string.home_memory),
-                    primaryValue = "${metrics.memoryUsedMb} MB",
-                    secondaryValue = stringResource(R.string.home_memory_total, metrics.memoryTotalMb),
-                    progress = (metrics.memoryUsagePercent / 100f).coerceIn(0f, 1f),
-                    progressText = stringResource(R.string.home_memory_used, metrics.memoryUsagePercent),
-                    extraInfo = stringResource(R.string.home_app_heap, metrics.appHeapUsedMb),
-                    accentColor = MaterialTheme.colorScheme.primary,
-                    icon = RuntimeIconName.Cpu,
+                // 1. 运行时引擎主状态卡片 (Status Banner)
+                RuntimeEngineStatusCard(
+                    state = state,
+                    metrics = metrics,
+                    installedDistros = installedDistros,
+                    activeDistroId = activeDistroId,
+                    switchingDistro = switchingDistro,
+                    modeStatus = modeStatus,
+                    onSwitchDistro = viewModel::switchDistro,
+                    onInitialize = viewModel::initializeRuntime,
+                    onCancel = viewModel::cancelInitialization,
+                    onOpenTerminal = onOpenTerminal,
+                    onOpenModeSettings = { onNavigate(MainDestination.Settings) },
                 )
 
-                // 存储指标
-                ResourceMetricCard(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    title = stringResource(R.string.home_storage),
-                    primaryValue = "${metrics.storageUsedGb} GB",
-                    secondaryValue = stringResource(R.string.home_storage_total, metrics.storageTotalGb),
-                    progress = (metrics.storageUsagePercent / 100f).coerceIn(0f, 1f),
-                    progressText = stringResource(R.string.home_storage_used, metrics.storageUsagePercent),
-                    extraInfo = stringResource(R.string.home_rootfs_healthy),
-                    accentColor = MaterialTheme.colorScheme.secondary,
-                    icon = RuntimeIconName.Storage,
+                // 2. WebChat 电脑大屏协作卡片 (Dashboard Bridge Card)
+                WebChatDashboardCard(
+                    status = webChatStatus,
+                    onToggle = viewModel::toggleWebChat,
                 )
+
+                // 3. 运行与开发环境体检自愈中心 (TaiXu Doctor & Auto-Fix)
+                EnvironmentDoctorCard(
+                    report = doctorReport,
+                    isChecking = isCheckingDoctor,
+                    isRepairing = isRepairing,
+                    repairProgress = repairProgress,
+                    runtimeReady = state is RuntimeState.Ready,
+                    onStartAutoRepair = {
+                        if (doctorReport?.items?.any { it.id == "host_all_files_access" && it.status != DoctorStatus.HEALTHY } == true) {
+                            requestAllFilesAccess()
+                        }
+                        viewModel.startAutoRepair()
+                    },
+                    onCancelRepair = viewModel::cancelAutoRepair,
+                    onRequestAllFilesAccess = requestAllFilesAccess,
+                    onOpenToolCenter = onOpenToolCenter,
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Max),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    // 内存指标
+                    ResourceMetricCard(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        title = stringResource(R.string.home_memory),
+                        primaryValue = "${metrics.memoryUsedMb} MB",
+                        secondaryValue = stringResource(R.string.home_memory_total, metrics.memoryTotalMb),
+                        progress = (metrics.memoryUsagePercent / 100f).coerceIn(0f, 1f),
+                        progressText = stringResource(R.string.home_memory_used, metrics.memoryUsagePercent),
+                        extraInfo = stringResource(R.string.home_app_heap, metrics.appHeapUsedMb),
+                        accentColor = MaterialTheme.colorScheme.primary,
+                        icon = RuntimeIconName.Cpu,
+                    )
+
+                    // 存储指标
+                    ResourceMetricCard(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        title = stringResource(R.string.home_storage),
+                        primaryValue = "${metrics.storageUsedGb} GB",
+                        secondaryValue = stringResource(R.string.home_storage_total, metrics.storageTotalGb),
+                        progress = (metrics.storageUsagePercent / 100f).coerceIn(0f, 1f),
+                        progressText = stringResource(R.string.home_storage_used, metrics.storageUsagePercent),
+                        extraInfo = stringResource(R.string.home_rootfs_healthy),
+                        accentColor = MaterialTheme.colorScheme.secondary,
+                        icon = RuntimeIconName.Storage,
+                    )
+                }
+
+                // 4. 运行环境与规格详情（低频信息，默认折叠）
+                SystemSpecsCard(metrics = metrics, modeStatus = modeStatus)
             }
-
-            // 4. 运行环境与规格详情（低频信息，默认折叠）
-            SystemSpecsCard(metrics = metrics, modeStatus = modeStatus)
         }
     }
 }
@@ -1290,73 +1330,6 @@ private fun SystemSpecsCard(metrics: SystemResourceMetrics, modeStatus: Executio
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun SpecRow(label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(0.42f, fill = false),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodySmall.copy(
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = FontFamily.Monospace,
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = androidx.compose.ui.text.style.TextAlign.End,
-            modifier = Modifier.weight(0.58f, fill = false),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
-}
-
-/**
- * 状态呼吸灯圆点
- */
-@Composable
-private fun PulsingStatusDot(color: Color, isPulsing: Boolean) {
-    val transition = rememberInfiniteTransition(label = "status_dot_pulse")
-    val alpha by if (isPulsing) {
-        transition.animateFloat(
-            initialValue = 0.4f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(1000, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-            label = "pulse_alpha",
-        )
-    } else {
-        remember { androidx.compose.runtime.mutableFloatStateOf(1f) }
-    }
-
-    Box(
-        modifier = Modifier
-            .size(14.dp)
-            .clip(CircleShape)
-            .background(color.copy(alpha = alpha * 0.3f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(color),
-        )
     }
 }
 

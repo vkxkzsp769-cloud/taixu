@@ -10,4 +10,5 @@ dependencies {
     implementation(project(":core:datastore"))
     implementation(project(":runtime"))
     implementation(libs.androidx.activity.compose)
+    testImplementation(libs.junit)
 }

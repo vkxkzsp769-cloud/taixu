@@ -71,4 +71,12 @@
     <string name="home_webchat_copied">已复制免密链接，发到电脑打开即可自动进入工作台！</string>
     <string name="home_webchat_hint">💡 提示：电脑需与手机连接至同一 Wi-Fi；当前在线设备：%1$d 台</string>
     <string name="home_webchat_intro">无需数据线，在同一 Wi-Fi 下使用电脑浏览器直接连入太墟 Agent、审阅代码并管理沙箱工作区。</string>
+    <string name="home_cpu_usage">CPU 利用率</string>
+    <string name="home_battery">宿主电量</string>
+    <string name="home_battery_charging">宿主电量（充电中）</string>
+    <string name="home_background_processes">后台进程</string>
+    <string name="home_service_count">伴侣服务</string>
+    <string name="home_uptime_label">运行时长</string>
+    <string name="home_switch_to_classic">切换到完整界面</string>
+    <string name="home_switch_to_cockpit">切换到座舱视图</string>
 </resources>

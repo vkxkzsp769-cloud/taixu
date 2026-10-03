@@ -71,4 +71,12 @@
     <string name="home_webchat_copied">Link copied. Open it on your computer to enter the workbench.</string>
     <string name="home_webchat_hint">💡 Tip: the computer must be on the same Wi-Fi as the phone. Devices online: %1$d</string>
     <string name="home_webchat_intro">No cable needed — connect from a desktop browser over the same Wi-Fi to use the TaiXu Agent, review code, and manage sandbox workspaces.</string>
+    <string name="home_cpu_usage">CPU usage</string>
+    <string name="home_battery">Host battery</string>
+    <string name="home_battery_charging">Host battery (charging)</string>
+    <string name="home_background_processes">Background processes</string>
+    <string name="home_service_count">Companion services</string>
+    <string name="home_uptime_label">Uptime</string>
+    <string name="home_switch_to_classic">Switch to full interface</string>
+    <string name="home_switch_to_cockpit">Switch to cockpit view</string>
 </resources>

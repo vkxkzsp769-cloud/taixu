@@ -53,63 +53,6 @@ import top.wkbin.taixu.ui.browser.BrowserScreen
 import top.wkbin.taixu.ui.workspace.CodeEditorScreen
 import top.wkbin.taixu.ui.workspace.WorkspaceExplorerScreen
 import top.wkbin.taixu.ui.workspace.WorkspaceScreen
-import kotlinx.serialization.Serializable
-
-@Serializable
-sealed interface AppDestination : NavKey
-
-@Serializable data object HomeDestination : AppDestination
-@Serializable data object AgentDestination : AppDestination
-@Serializable data object WorkspaceDestination : AppDestination
-@Serializable data object WorkshopSettingsDestination : AppDestination
-@Serializable data object WorkshopEnvironmentSettingsDestination : AppDestination
-@Serializable data object WorkshopSigningSettingsDestination : AppDestination
-@Serializable data class WorkshopScriptEditorDestination(val type: String) : AppDestination
-@Serializable data class WorkspaceExplorerDestination(val projectName: String, val initialPath: String = "") : AppDestination
-@Serializable data class CodeEditorDestination(val projectName: String, val relativePath: String) : AppDestination
-@Serializable data object SettingsDestination : AppDestination
-@Serializable data object SettingsSearchDestination : AppDestination
-@Serializable data object AgentEcoSettingsDestination : AppDestination
-@Serializable data object LinuxEnvSettingsDestination : AppDestination
-@Serializable data object AppearanceSettingsDestination : AppDestination
-@Serializable data object SystemDevSettingsDestination : AppDestination
-@Serializable data object AboutCommunityDestination : AppDestination
-@Serializable data object SponsorDestination : AppDestination
-@Serializable data object AgentSettingsDestination : AppDestination
-@Serializable data object AgentSubagentSettingsDestination : AppDestination
-@Serializable data object AgentSkillSettingsDestination : AppDestination
-@Serializable data object McpSettingsDestination : AppDestination
-@Serializable data object ToolCenterDestination : AppDestination
-@Serializable data object CcSwitchDestination : AppDestination
-@Serializable data class ToolDetailDestination(val toolId: String) : AppDestination
-@Serializable data object DistroManagementDestination : AppDestination
-@Serializable data object StorageMountSettingsDestination : AppDestination
-@Serializable data object StorageUsageDestination : AppDestination
-@Serializable data object AppManagementDestination : AppDestination
-@Serializable data object EnvironmentVariableSettingsDestination : AppDestination
-@Serializable data object SshSettingsDestination : AppDestination
-@Serializable data object FtpSettingsDestination : AppDestination
-@Serializable data object ModelProfilesDestination : AppDestination
-@Serializable data object LocalLlmDestination : AppDestination
-@Serializable data class ModelEditorDestination(val modelId: String? = null) : AppDestination
-@Serializable data object QuickPhrasesDestination : AppDestination
-@Serializable data object StatsDestination : AppDestination
-@Serializable data object PermissionGuideDestination : AppDestination
-@Serializable data object DeveloperDestination : AppDestination
-@Serializable data object LiquidGlassCatalogDestination : AppDestination
-@Serializable data object AdbLogcatDestination : AppDestination
-@Serializable data object A2uiPocDestination : AppDestination
-@Serializable data object CustomIterationDestination : AppDestination
-@Serializable data class TerminalDestination(val toolId: String = "", val project: String = "") : AppDestination
-@Serializable data object BrowserDestination : AppDestination
-@Serializable data class GitRepositoryDestination(val projectName: String) : AppDestination
-@Serializable data class WorkflowDestination(
-    val projectName: String = "",
-    val workflowId: String? = null,
-    val initialVariables: Map<String, String> = emptyMap(),
-    // 通知栏深链：进入工作流页后直接定位到该执行的运行视图
-    val executionId: String? = null,
-) : AppDestination
 
 /**
  * 太墟核心导航分发系统
@@ -137,6 +80,8 @@ fun TaiXuNavHost(
     val settingsStack = rememberNavBackStack(SettingsDestination)
     var pendingHealingTask by remember { mutableStateOf<HealingTask?>(null) }
     var selectedMain by rememberSaveable { mutableStateOf(MainDestination.Home) } // 默认进入太墟开辟主界
+    // 仪表盘座舱模式（上=运行占用，下=终端）由 Home 上报：玻璃主题的悬浮四标签需要跟着收起。
+    var cockpitOverlay by rememberSaveable { mutableStateOf(false) }
     /** Programmatic stack mutation (bus / workflow). */
     fun NavBackStack<NavKey>.pushRaw(destination: NavKey) {
         if (lastOrNull() == destination) return
@@ -239,6 +184,9 @@ fun TaiXuNavHost(
                         onNavigate = ::navigateMain,
                         onOpenTerminal = { homeStack.push(HomeDestination, TerminalDestination()) },
                         onOpenToolCenter = { homeStack.push(HomeDestination, ToolCenterDestination) },
+                        // 座舱下半屏内嵌终端：非独立导航节点，无返回目标，隐藏顶栏返回箭头
+                        terminalPane = { TerminalScreen(onBack = {}, showBackButton = false) },
+                        onDashboardModeChanged = { cockpit -> cockpitOverlay = cockpit },
                     )
                 }
             }
@@ -760,7 +708,8 @@ fun TaiXuNavHost(
     val liquidGlassBackdrop = LocalLiquidGlassBackdrop.current
     val showLiquidBottomBar = liquidGlassBackdrop != null &&
         activeStack.size == 1 &&
-        WindowInsets.ime.getBottom(density) == 0
+        WindowInsets.ime.getBottom(density) == 0 &&
+        !cockpitOverlay
     // Hoist decorators so tab switches (key below) do not drop entry Saveable/ViewModel state.
     // Explicit <NavKey>: outside NavDisplay's parameter context, listOf cannot infer T.
     val entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator<NavKey>(), rememberViewModelStoreNavEntryDecorator<NavKey>())

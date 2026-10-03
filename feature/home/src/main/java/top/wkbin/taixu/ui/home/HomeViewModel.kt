@@ -18,6 +18,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.wkbin.taixu.core.common.logging.AppLogger
+import top.wkbin.taixu.core.datastore.homeCockpitModePreference
+import top.wkbin.taixu.core.datastore.setHomeCockpitModePreference
 import top.wkbin.taixu.core.model.DoctorReport
 import top.wkbin.taixu.core.model.ExecutionMode
 import top.wkbin.taixu.core.model.RepairProgress
@@ -58,6 +60,12 @@ data class SystemResourceMetrics(
     val engineVersion: String = "proot-distro 5.9.0 · Link2Symlink",
     val hostAndroidVersion: String = "Android",
     val uptimeFormatted: String = "00:00",
+    /** 整机 CPU 利用率（两次采样之间的差值）；-1 表示宿主未提供该指标。 */
+    val cpuUsagePercent: Int = HomeDashboardPolicy.METRIC_UNAVAILABLE,
+    /** 宿主电量百分比；-1 表示不可用。 */
+    val batteryPercent: Int = HomeDashboardPolicy.METRIC_UNAVAILABLE,
+    /** 宿主是否正在充电。 */
+    val batteryCharging: Boolean = false,
 )
 
 class HomeViewModel(
@@ -102,6 +110,26 @@ class HomeViewModel(
     private val _metrics = MutableStateFlow(SystemResourceMetrics())
     val metrics: StateFlow<SystemResourceMetrics> = _metrics.asStateFlow()
 
+    // 仪表盘呈现模式：座舱（上下分半：上=运行占用，下=终端）/ 经典（全量卡片流 + 底部四标签）。
+    // 真相由右上角总开关独占，持久化在 core:datastore 的 home_cockpit_mode 键上。
+    private val _dashboardMode = MutableStateFlow(HomeDashboardMode.fromPreference(HomeDashboardMode.DEFAULT_COCKPIT))
+    val dashboardMode: StateFlow<HomeDashboardMode> = _dashboardMode.asStateFlow()
+
+    /** 右上角总开关：在座舱与经典界面之间切换并持久化。 */
+    fun toggleDashboardMode() {
+        val next = _dashboardMode.value.next
+        _dashboardMode.value = next
+        viewModelScope.launch { context.setHomeCockpitModePreference(next == HomeDashboardMode.COCKPIT) }
+    }
+
+    private fun observeDashboardMode() {
+        viewModelScope.launch {
+            context.homeCockpitModePreference.collect { enabled ->
+                _dashboardMode.value = HomeDashboardMode.fromPreference(enabled)
+            }
+        }
+    }
+
     // 运行环境健康体检状态
     private val _doctorReport = MutableStateFlow<DoctorReport?>(null)
     val doctorReport: StateFlow<DoctorReport?> = _doctorReport.asStateFlow()
@@ -122,6 +150,7 @@ class HomeViewModel(
         observeRuntimeStateForDoctor()
         observeRepairCompletion()
         observeExecutionMode()
+        observeDashboardMode()
     }
 
     /** 直接消费全应用共享的权限状态机，避免首页自行维护第二套授权真相。 */
@@ -267,6 +296,11 @@ class HomeViewModel(
                 val currentDistro = linuxRuntime.activeDistroId.value
                 val distroDisplayName = DistributionCatalog.require(currentDistro).displayName
 
+                // 座舱面板需要整机 CPU 利用率与电量。CPU 为两次采样的差值；电量走 sticky 广播，
+                // 仅在慢速刷新周期读取。采样不可用时保持 -1，由 UI 隐藏整行，绝不伪造数字。
+                val cpuUsagePercent = HomeUsageSampler.sampleCpuUsagePercent()
+                val batteryReading = if (refreshSlowMetrics) HomeUsageSampler.sampleBattery(context) else null
+
                 _metrics.value = SystemResourceMetrics(
                     memoryUsedMb = usedMemMb,
                     memoryTotalMb = totalMemMb,
@@ -282,6 +316,9 @@ class HomeViewModel(
                     engineVersion = "proot-distro 5.9.0 · Link2Symlink",
                     hostAndroidVersion = androidVer,
                     uptimeFormatted = uptime,
+                    cpuUsagePercent = cpuUsagePercent,
+                    batteryPercent = batteryReading?.percent ?: _metrics.value.batteryPercent,
+                    batteryCharging = batteryReading?.charging ?: _metrics.value.batteryCharging,
                 )
             }
             } catch (e: CancellationException) {
