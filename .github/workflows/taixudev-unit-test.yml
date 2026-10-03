@@ -62,6 +62,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: taixudev-unit-test-reports
-          path: '**/build/reports/tests/**'
+          path: |
+            **/build/reports/tests/**
+            **/build/test-results/**
           retention-days: 7
           if-no-files-found: ignore
