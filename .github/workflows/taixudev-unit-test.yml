@@ -1,0 +1,67 @@
+name: Test TaiXuDev Iteration
+
+# 单元测试门禁：自定义迭代改动在真机安装（taixudev-build.yml）之前先在云端验证。
+# 手机侧 PRoot 沙箱不安装 Android SDK/NDK，测试统一由 GitHub Actions 执行。
+on:
+  workflow_dispatch:
+    inputs:
+      gradle_tasks:
+        description: 'Gradle 测试任务（空格分隔）'
+        required: false
+        default: ':feature:custom_iteration:testDebugUnitTest'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'feature/custom_iteration/**'
+      - 'build-logic/**'
+      - 'gradle/libs.versions.toml'
+      - '.github/workflows/taixudev-unit-test.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'feature/custom_iteration/**'
+
+jobs:
+  unit-test:
+    name: Unit Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          # 'tools' 包已于 2026-09 被 Google 下线，不能再用默认值（tools platform-tools）
+          packages: 'platform-tools'
+
+      - name: Grant Execute Permission for Gradlew
+        run: chmod +x gradlew
+
+      - name: Run Unit Tests
+        env:
+          GRADLE_TASKS: ${{ github.event.inputs.gradle_tasks }}
+        run: |
+          TASKS="${GRADLE_TASKS:-:feature:custom_iteration:testDebugUnitTest}"
+          echo "Executing: $TASKS"
+          ./gradlew $TASKS --no-daemon --stacktrace --console=plain
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: taixudev-unit-test-reports
+          path: '**/build/reports/tests/**'
+          retention-days: 7
+          if-no-files-found: ignore

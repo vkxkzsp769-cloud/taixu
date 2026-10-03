@@ -35,4 +35,13 @@ object TaiXuDevBuildCoordinator {
         fun checkFailedLog(runId: String): String =
             "gh run view $runId --log-failed"
     }
+
+    /**
+     * 产物门禁：APK 下载完成后、安装之前校验包名 / 应用名 / 版本后缀 / SHA-256。
+     *
+     * 任一 BLOCKING 项失败即视为不可安装，避免预览包误覆盖正式版数据。
+     */
+    fun verifyArtifact(
+        metadata: TaiXuDevArtifactVerifier.ArtifactMetadata,
+    ): TaiXuDevArtifactVerifier.VerificationReport = TaiXuDevArtifactVerifier.verify(metadata)
 }
