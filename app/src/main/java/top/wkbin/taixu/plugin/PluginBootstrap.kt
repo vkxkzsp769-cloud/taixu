@@ -23,7 +23,7 @@ import top.wkbin.taixu.ui.chat.floating.FloatingChatService
  * 3. 再异步装载已获批插件——装载失败/权限不足只会留下审计，不影响第一帧与既有功能。
  */
 class PluginBootstrap(
-    context: Context,
+    private val context: Context,
     private val manager: PluginHostManager,
 ) {
 
