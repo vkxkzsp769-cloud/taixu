@@ -1,7 +1,6 @@
 package top.wkbin.taixu.ui.chat.floating
 
 import android.content.Context
-import org.koin.core.component.KoinComponent
 import top.wkbin.taixu.core.tools.plugin.FloatingWindowDelegate
 import top.wkbin.taixu.core.tools.plugin.FloatingWindowOutcome
 
@@ -13,10 +12,14 @@ import top.wkbin.taixu.core.tools.plugin.FloatingWindowOutcome
  *
  * 拿不到 delegate（Koin 未就绪、单元测试、老流程）时**行为与改造前完全一致**，直接起内置服务。
  */
-object ChatFloatingWindow : KoinComponent {
+object ChatFloatingWindow {
 
+    /**
+     * 取接管点 delegate。沿用本仓库既有惯用法（见 ChatMessageBubbles.kt:762）：
+     * GlobalContext 未就绪或 delegate 未绑定时返回 null，调用方据此直接走内置实现。
+     */
     private val delegate: FloatingWindowDelegate?
-        get() = runCatching { get<FloatingWindowDelegate>() }.getOrNull()
+        get() = runCatching { org.koin.core.context.GlobalContext.getOrNull()?.getOrNull<FloatingWindowDelegate>() }.getOrNull()
 
     /** 收起会话到悬浮窗。返回接管结果，供 UI 决定是否退到后台。 */
     suspend fun collapse(context: Context): FloatingWindowOutcome {
