@@ -66,6 +66,10 @@ class TaiXuApplication : Application(), Configuration.Provider {
     val browserMcpBootstrap: BrowserMcpBootstrap by inject()
     val agentMcpBootstrap: AgentMcpBootstrap by inject()
 
+    // 宿主能力插件：装载图涉及 DexClassLoader 与 DataStore，按本文件既有约定用 Lazy 延后构造，
+    // 避免拖慢第一帧（实际构建发生在 IO 协程里的 PluginBootstrap.start()）。
+    val pluginHostManagerLazy: Lazy<top.wkbin.taixu.core.tools.plugin.PluginHostManager> = inject()
+
     private val appLoggerLazy: Lazy<AppLogger> = inject()
     private val virtualDisplayCoordinatorLazy: Lazy<VirtualDisplayCoordinator> = inject()
 
@@ -105,7 +109,7 @@ class TaiXuApplication : Application(), Configuration.Provider {
                     runCatching {
                         top.wkbin.taixu.plugin.PluginBootstrap(
                             context = this@TaiXuApplication,
-                            manager = getKoin().get(),
+                            manager = pluginHostManagerLazy.value,
                         ).start()
                     }.onFailure { Log.w(TAG, "插件体系启动装配失败", it) }
                 }

@@ -1,7 +1,7 @@
 package top.wkbin.taixu.ui.chat.floating
 
 import android.content.Context
-import org.koin.java.KoinJavaComponent
+import org.koin.core.component.KoinComponent
 import top.wkbin.taixu.core.tools.plugin.FloatingWindowDelegate
 import top.wkbin.taixu.core.tools.plugin.FloatingWindowOutcome
 
@@ -13,10 +13,10 @@ import top.wkbin.taixu.core.tools.plugin.FloatingWindowOutcome
  *
  * 拿不到 delegate（Koin 未就绪、单元测试、老流程）时**行为与改造前完全一致**，直接起内置服务。
  */
-object ChatFloatingWindow {
+object ChatFloatingWindow : KoinComponent {
 
     private val delegate: FloatingWindowDelegate?
-        get() = runCatching { KoinJavaComponent.get(FloatingWindowDelegate::class.java) }.getOrNull()
+        get() = runCatching { get<FloatingWindowDelegate>() }.getOrNull()
 
     /** 收起会话到悬浮窗。返回接管结果，供 UI 决定是否退到后台。 */
     suspend fun collapse(context: Context): FloatingWindowOutcome {
