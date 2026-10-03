@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       gradle_tasks:
-        description: 'Gradle 测试任务（空格分隔）'
+        description: '要执行的 Gradle 任务（空格分隔）'
         required: false
-        default: ':feature:custom_iteration:testDebugUnitTest'
+        default: ':tools:testDebugUnitTest :feature:home:testDebugUnitTest :feature:custom_iteration:testDebugUnitTest'
   pull_request:
     branches:
       - main

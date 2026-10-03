@@ -3,6 +3,10 @@ package top.wkbin.taixu.ui.chat
 import android.app.Activity
 import android.provider.Settings
 import top.wkbin.taixu.ui.chat.floating.FloatingChatService
+import top.wkbin.taixu.ui.chat.floating.ChatFloatingWindow
+import top.wkbin.taixu.core.tools.plugin.FloatingWindowOutcome
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -114,16 +118,22 @@ internal fun ChatTopBar(
             }
 
             // 右侧：小窗 + 会话抽屉
+            val floatingScope = rememberCoroutineScope()
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 // 🌟 1. 智枢悬浮小窗收起按钮 (Collapse to Floating Window)
+                // 走接管点而非直连 FloatingChatService：获批插件可顶掉内置悬浮窗，失败自动回退。
                 IconButton(
                     onClick = {
                         if (Settings.canDrawOverlays(context)) {
-                            FloatingChatService.start(context)
-                            (context as? Activity)?.moveTaskToBack(true)
+                            floatingScope.launch {
+                                val outcome = ChatFloatingWindow.collapse(context)
+                                if (outcome != FloatingWindowOutcome.REFUSED) {
+                                    (context as? Activity)?.moveTaskToBack(true)
+                                }
+                            }
                         } else {
                             onShowFloatingPermissionDialog()
                         }

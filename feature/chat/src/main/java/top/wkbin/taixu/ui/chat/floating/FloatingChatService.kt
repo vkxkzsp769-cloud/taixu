@@ -358,12 +358,23 @@ class FloatingChatService : Service() {
     }
 
     companion object {
+        /**
+         * 服务是否处于运行意图。供「插件接管点」判断 isShowing，避免重复 startService；
+         * 静态标记随进程消亡自动复位，被系统单独回收时最多多一次 stopService，无副作用。
+         */
+        @Volatile
+        private var running = false
+
+        val isRunning: Boolean get() = running
+
         fun start(context: Context) {
+            running = true
             val intent = Intent(context, FloatingChatService::class.java)
             context.startService(intent)
         }
 
         fun stop(context: Context) {
+            running = false
             val intent = Intent(context, FloatingChatService::class.java)
             context.stopService(intent)
         }

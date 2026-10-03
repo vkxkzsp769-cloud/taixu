@@ -99,6 +99,16 @@ class TaiXuApplication : Application(), Configuration.Provider {
                 launch { runCatching { browserMcpBootstrap.bootstrap() } }
                 // 被控端：默认关闭，仅按偏好启用；start() 内部自持协程监听偏好，改配置无需重启 App
                 launch { runCatching { agentMcpBootstrap.start() } }
+                // 宿主能力插件体系：先登记内置兜底实现，再装载已获批插件。
+                // 任何失败都只留审计记录，绝不影响既有功能与启动耗时（本块已在 IO 协程内）。
+                launch {
+                    runCatching {
+                        top.wkbin.taixu.plugin.PluginBootstrap(
+                            context = this@TaiXuApplication,
+                            manager = getKoin().get(),
+                        ).start()
+                    }.onFailure { Log.w(TAG, "插件体系启动装配失败", it) }
+                }
                 launch {
                     runCatching {
                         val skillRepository = agentSkillRepositoryLazy.value

@@ -165,4 +165,52 @@ val toolsModule = module {
             agentSkillRepository = get(),
         )
     }
+
+    // ---- 宿主能力插件体系（schema v2）：授权存储 → 安装器 → 装载器 → 管理器 → 接管点 ----
+    single { top.wkbin.taixu.core.datastore.PluginStateRepository(context = get()) }
+
+    single<top.wkbin.taixu.core.common.plugin.PluginGrantStore> {
+        top.wkbin.taixu.core.tools.plugin.DataStorePluginGrantStore(repository = get())
+    }
+
+    single { top.wkbin.taixu.core.common.plugin.PluginRegistry() }
+
+    single<top.wkbin.taixu.core.tools.plugin.PluginCapabilityProbe> {
+        top.wkbin.taixu.core.tools.plugin.SystemCapabilityProbe(context = get())
+    }
+
+    single<top.wkbin.taixu.core.tools.plugin.PluginPermissionRequester> {
+        top.wkbin.taixu.core.tools.plugin.SettingsPermissionRequester()
+    }
+
+    single<top.wkbin.taixu.core.tools.plugin.PluginCodeLoader> {
+        top.wkbin.taixu.core.tools.plugin.DexPluginLoader(context = get())
+    }
+
+    single {
+        top.wkbin.taixu.core.tools.plugin.PluginInstaller(
+            context = get(),
+            store = get(),
+            hostVersionCode = {
+                val ctx: android.content.Context = get()
+                runCatching {
+                    @Suppress("DEPRECATION")
+                    ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionCode
+                }.getOrDefault(0)
+            },
+        )
+    }
+
+    single {
+        top.wkbin.taixu.core.tools.plugin.PluginHostManager(
+            context = get(),
+            store = get(),
+            registry = get(),
+            loaders = listOf(get()),
+            probe = get(),
+            requester = get(),
+        )
+    }
+
+    single { top.wkbin.taixu.core.tools.plugin.FloatingWindowDelegate(manager = get()) }
 }
