@@ -2,17 +2,17 @@ package top.wkbin.taixu.core.tools.plugin
 
 import android.content.Context
 import android.util.Log
-import top.wkbin.taixu.core.common.plugin.PluginAuditAction
-import top.wkbin.taixu.core.common.plugin.PluginAuditEvent
-import top.wkbin.taixu.core.common.plugin.PluginCapability
-import top.wkbin.taixu.core.common.plugin.PluginExtension
-import top.wkbin.taixu.core.common.plugin.PluginGrantState
-import top.wkbin.taixu.core.common.plugin.PluginGrantStore
-import top.wkbin.taixu.core.common.plugin.PluginRecord
-import top.wkbin.taixu.core.common.plugin.PluginRegistration
-import top.wkbin.taixu.core.common.plugin.PluginRegistry
-import top.wkbin.taixu.core.common.plugin.PluginSafetyPolicy
-import top.wkbin.taixu.core.common.plugin.PluginSlot
+import top.wkbin.taixu.core.tools.plugin.PluginAuditAction
+import top.wkbin.taixu.core.tools.plugin.PluginAuditEvent
+import top.wkbin.taixu.core.tools.plugin.PluginCapability
+import top.wkbin.taixu.core.tools.plugin.PluginExtension
+import top.wkbin.taixu.core.tools.plugin.PluginGrantState
+import top.wkbin.taixu.core.tools.plugin.PluginGrantStore
+import top.wkbin.taixu.core.tools.plugin.PluginRecord
+import top.wkbin.taixu.core.tools.plugin.PluginRegistration
+import top.wkbin.taixu.core.tools.plugin.PluginRegistry
+import top.wkbin.taixu.core.tools.plugin.PluginSafetyPolicy
+import top.wkbin.taixu.core.tools.plugin.PluginSlot
 import top.wkbin.taixu.core.model.plugin.PluginManifest
 
 /** 内置实现的保留插件 ID：宿主自带实现也走同一个槽位仲裁，只是优先级最低。 */
@@ -206,7 +206,7 @@ class PluginHostManager(
         store.appendAudit(PluginAuditEvent(System.currentTimeMillis(), pluginId, action, slotId, detail))
     }
 
-    private class TaiXuPluginHandle(val plugin: top.wkbin.taixu.core.common.plugin.TaiXuPlugin, val facade: PluginHostFacade)
+    private class TaiXuPluginHandle(val plugin: top.wkbin.taixu.core.tools.plugin.TaiXuPlugin, val facade: PluginHostFacade)
 
     private companion object {
         const val TAG = "TaiXuPluginHost"
@@ -217,7 +217,7 @@ class PluginHostManager(
 sealed class PluginSlotUiState {
     data object Unknown : PluginSlotUiState()
     data class Resolved(
-        val verdict: top.wkbin.taixu.core.common.plugin.SlotVerdict,
+        val verdict: top.wkbin.taixu.core.tools.plugin.SlotVerdict,
         val approved: Boolean,
         val capabilityState: PluginGrantState,
         val autoDisabled: Boolean,
@@ -225,7 +225,7 @@ sealed class PluginSlotUiState {
     ) : PluginSlotUiState() {
         /** 综合结论：现在这个槽位到底会被插件接管吗。 */
         val willOverride: Boolean
-            get() = verdict is top.wkbin.taixu.core.common.plugin.SlotVerdict.Allowed &&
+            get() = verdict is top.wkbin.taixu.core.tools.plugin.SlotVerdict.Allowed &&
                 approved && capabilityState == PluginGrantState.GRANTED && enabled && !autoDisabled
     }
 }

@@ -2,11 +2,11 @@ package top.wkbin.taixu.core.tools.plugin
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import top.wkbin.taixu.core.common.plugin.PluginAuditAction
-import top.wkbin.taixu.core.common.plugin.PluginAuditEvent
-import top.wkbin.taixu.core.common.plugin.PluginGrantStore
-import top.wkbin.taixu.core.common.plugin.PluginRecord
-import top.wkbin.taixu.core.common.plugin.PluginSafetyPolicy
+import top.wkbin.taixu.core.tools.plugin.PluginAuditAction
+import top.wkbin.taixu.core.tools.plugin.PluginAuditEvent
+import top.wkbin.taixu.core.tools.plugin.PluginGrantStore
+import top.wkbin.taixu.core.tools.plugin.PluginRecord
+import top.wkbin.taixu.core.tools.plugin.PluginSafetyPolicy
 import top.wkbin.taixu.core.datastore.PluginStateRepository
 
 /**

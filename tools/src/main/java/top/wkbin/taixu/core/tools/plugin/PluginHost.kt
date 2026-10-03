@@ -1,4 +1,4 @@
-package top.wkbin.taixu.core.common.plugin
+package top.wkbin.taixu.core.tools.plugin
 
 /**
  * 插件入口接口：进程内插件（runtime=NATIVE_DEX）必须实现它。

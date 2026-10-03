@@ -1,4 +1,4 @@
-package top.wkbin.taixu.core.common.plugin
+package top.wkbin.taixu.core.tools.plugin
 
 import top.wkbin.taixu.core.model.plugin.PluginManifest
 

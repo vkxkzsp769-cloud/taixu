@@ -2,7 +2,7 @@ package top.wkbin.taixu.core.tools.plugin
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import top.wkbin.taixu.core.common.plugin.PluginRecord
+import top.wkbin.taixu.core.tools.plugin.PluginRecord
 import top.wkbin.taixu.core.model.plugin.PluginManifest
 
 /** 持久化用的插件状态 DTO：与 [PluginRecord] 一一对应，字段变化需保持向后兼容。 */

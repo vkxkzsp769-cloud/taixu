@@ -2,18 +2,18 @@ package top.wkbin.taixu.core.tools.plugin
 
 import android.content.Context
 import android.util.Log
-import top.wkbin.taixu.core.common.plugin.PluginAgentBridge
-import top.wkbin.taixu.core.common.plugin.PluginCapability
-import top.wkbin.taixu.core.common.plugin.PluginExtension
-import top.wkbin.taixu.core.common.plugin.PluginGrantState
-import top.wkbin.taixu.core.common.plugin.PluginHost
-import top.wkbin.taixu.core.common.plugin.PluginLinuxBridge
-import top.wkbin.taixu.core.common.plugin.PluginLogLevel
-import top.wkbin.taixu.core.common.plugin.PluginRecord
-import top.wkbin.taixu.core.common.plugin.PluginRegistration
-import top.wkbin.taixu.core.common.plugin.PluginRegistry
-import top.wkbin.taixu.core.common.plugin.PluginSlot
-import top.wkbin.taixu.core.common.plugin.PluginStorageBridge
+import top.wkbin.taixu.core.tools.plugin.PluginAgentBridge
+import top.wkbin.taixu.core.tools.plugin.PluginCapability
+import top.wkbin.taixu.core.tools.plugin.PluginExtension
+import top.wkbin.taixu.core.tools.plugin.PluginGrantState
+import top.wkbin.taixu.core.tools.plugin.PluginHost
+import top.wkbin.taixu.core.tools.plugin.PluginLinuxBridge
+import top.wkbin.taixu.core.tools.plugin.PluginLogLevel
+import top.wkbin.taixu.core.tools.plugin.PluginRecord
+import top.wkbin.taixu.core.tools.plugin.PluginRegistration
+import top.wkbin.taixu.core.tools.plugin.PluginRegistry
+import top.wkbin.taixu.core.tools.plugin.PluginSlot
+import top.wkbin.taixu.core.tools.plugin.PluginStorageBridge
 import top.wkbin.taixu.core.model.plugin.PluginManifest
 
 /**

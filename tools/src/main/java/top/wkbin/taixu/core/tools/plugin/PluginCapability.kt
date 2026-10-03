@@ -1,4 +1,4 @@
-package top.wkbin.taixu.core.common.plugin
+package top.wkbin.taixu.core.tools.plugin
 
 /**
  * 宿主能力词表（插件可申请的权限）。

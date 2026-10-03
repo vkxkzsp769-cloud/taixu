@@ -1,14 +1,14 @@
 package top.wkbin.taixu.core.tools.plugin
 
 import android.content.Context
-import top.wkbin.taixu.core.common.plugin.PluginAuditAction
-import top.wkbin.taixu.core.common.plugin.PluginAuditEvent
-import top.wkbin.taixu.core.common.plugin.PluginCapability
-import top.wkbin.taixu.core.common.plugin.PluginConsentLevel
-import top.wkbin.taixu.core.common.plugin.PluginGrantStore
-import top.wkbin.taixu.core.common.plugin.PluginRecord
-import top.wkbin.taixu.core.common.plugin.PluginRisk
-import top.wkbin.taixu.core.common.plugin.PluginSafetyPolicy
+import top.wkbin.taixu.core.tools.plugin.PluginAuditAction
+import top.wkbin.taixu.core.tools.plugin.PluginAuditEvent
+import top.wkbin.taixu.core.tools.plugin.PluginCapability
+import top.wkbin.taixu.core.tools.plugin.PluginConsentLevel
+import top.wkbin.taixu.core.tools.plugin.PluginGrantStore
+import top.wkbin.taixu.core.tools.plugin.PluginRecord
+import top.wkbin.taixu.core.tools.plugin.PluginRisk
+import top.wkbin.taixu.core.tools.plugin.PluginSafetyPolicy
 import top.wkbin.taixu.core.model.plugin.PluginManifest
 import java.io.File
 import java.io.InputStream
@@ -38,7 +38,7 @@ class PluginInstaller(
     private val context: Context,
     private val store: PluginGrantStore,
     private val hostVersionCode: () -> Int,
-    private val knownSlotIds: () -> Set<String> = { top.wkbin.taixu.core.common.plugin.PluginSlots.knownIds },
+    private val knownSlotIds: () -> Set<String> = { top.wkbin.taixu.core.tools.plugin.PluginSlots.knownIds },
 ) {
 
     suspend fun install(packageFile: File, nowMs: Long = System.currentTimeMillis()): PluginInstallResult {

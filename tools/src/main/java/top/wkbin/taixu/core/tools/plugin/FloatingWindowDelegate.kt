@@ -1,8 +1,8 @@
 package top.wkbin.taixu.core.tools.plugin
 
 import android.content.Context
-import top.wkbin.taixu.core.common.plugin.FloatingWindowExtension
-import top.wkbin.taixu.core.common.plugin.PluginSlots
+import top.wkbin.taixu.core.tools.plugin.FloatingWindowExtension
+import top.wkbin.taixu.core.tools.plugin.PluginSlots
 
 /** 悬浮窗接管结果，供 UI 反馈与日志归因。 */
 enum class FloatingWindowOutcome {

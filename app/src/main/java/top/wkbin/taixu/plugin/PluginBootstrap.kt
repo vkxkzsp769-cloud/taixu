@@ -6,9 +6,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import top.wkbin.taixu.core.common.plugin.FloatingWindowExtension
-import top.wkbin.taixu.core.common.plugin.PluginHost
-import top.wkbin.taixu.core.common.plugin.PluginSlots
+import top.wkbin.taixu.core.tools.plugin.FloatingWindowExtension
+import top.wkbin.taixu.core.tools.plugin.PluginHost
+import top.wkbin.taixu.core.tools.plugin.PluginSlots
 import top.wkbin.taixu.core.tools.plugin.AppContextHolder
 import top.wkbin.taixu.core.tools.plugin.BUILTIN_PLUGIN_ID
 import top.wkbin.taixu.core.tools.plugin.PluginHostManager

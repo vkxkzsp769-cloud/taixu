@@ -1,10 +1,10 @@
 package top.wkbin.taixu.core.tools.plugin
 
-import top.wkbin.taixu.core.common.plugin.PluginCapability
-import top.wkbin.taixu.core.common.plugin.PluginRecord
-import top.wkbin.taixu.core.common.plugin.PluginRegistration
-import top.wkbin.taixu.core.common.plugin.PluginSafetyPolicy
-import top.wkbin.taixu.core.common.plugin.PluginSlot
+import top.wkbin.taixu.core.tools.plugin.PluginCapability
+import top.wkbin.taixu.core.tools.plugin.PluginRecord
+import top.wkbin.taixu.core.tools.plugin.PluginRegistration
+import top.wkbin.taixu.core.tools.plugin.PluginSafetyPolicy
+import top.wkbin.taixu.core.tools.plugin.PluginSlot
 import top.wkbin.taixu.core.model.plugin.PluginManifest
 
 /**
@@ -31,7 +31,7 @@ fun isRegistrationApproved(
     if (registration.slotId !in current.approvedSlots) return false
     if (!current.manifest.extensionPoints.contains(slot.id)) return false
     if (PluginSafetyPolicy.canClaimSlot(current.manifest, slot) is
-        top.wkbin.taixu.core.common.plugin.SlotVerdict.Denied
+        top.wkbin.taixu.core.tools.plugin.SlotVerdict.Denied
     ) return false
     if (slot.hasBuiltin && !current.hasCapability(PluginCapability.UI_SLOT_OVERRIDE)) return false
     return true

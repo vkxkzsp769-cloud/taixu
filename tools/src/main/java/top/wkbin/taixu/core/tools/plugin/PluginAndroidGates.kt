@@ -9,9 +9,9 @@ import android.os.Build
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.accessibility.AccessibilityManager
-import top.wkbin.taixu.core.common.plugin.PluginCapability
-import top.wkbin.taixu.core.common.plugin.PluginGrantState
-import top.wkbin.taixu.core.common.plugin.PluginRecord
+import top.wkbin.taixu.core.tools.plugin.PluginCapability
+import top.wkbin.taixu.core.tools.plugin.PluginGrantState
+import top.wkbin.taixu.core.tools.plugin.PluginRecord
 
 /**
  * 用真实 Android API 探测能力状态。
@@ -65,7 +65,7 @@ class SettingsPermissionRequester : PluginPermissionRequester {
         val probe = SystemCapabilityProbe(context)
         if (probe.isSystemGranted(capability)) return callback(PluginGrantState.GRANTED)
 
-        val intent = when (capability) {
+        val pair: Pair<String?, String?> = when (capability) {
             PluginCapability.OVERLAY_WINDOW ->
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION to "package:$packageName(context)"
             PluginCapability.ACCESSIBILITY_CONTROL ->
@@ -77,7 +77,7 @@ class SettingsPermissionRequester : PluginPermissionRequester {
             else -> null to null
         }
 
-        val opened = intent.first?.let { action -> runCatching { openSettings(context, action, intent.second) }.getOrDefault(false) } ?: false
+        val opened = pair.first?.let { action -> runCatching { openSettings(context, action, pair.second) }.getOrDefault(false) } ?: false
         callback(if (opened) PluginGrantState.NEEDS_SYSTEM_SETTINGS else PluginGrantState.UNKNOWN)
     }
 

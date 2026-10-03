@@ -2,8 +2,8 @@ package top.wkbin.taixu.core.tools.plugin
 
 import android.content.Context
 import dalvik.system.DexClassLoader
-import top.wkbin.taixu.core.common.plugin.PluginRecord
-import top.wkbin.taixu.core.common.plugin.TaiXuPlugin
+import top.wkbin.taixu.core.tools.plugin.PluginRecord
+import top.wkbin.taixu.core.tools.plugin.TaiXuPlugin
 import java.io.File
 
 /** 插件代码装载失败（缺文件、类不存在、未实现 SPI 等）。 */

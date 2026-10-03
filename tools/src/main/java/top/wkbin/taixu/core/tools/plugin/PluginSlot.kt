@@ -1,4 +1,4 @@
-package top.wkbin.taixu.core.common.plugin
+package top.wkbin.taixu.core.tools.plugin
 
 /**
  * 扩展点（槽位）：宿主在内置实现之外预留的「可被插件顶掉」的位置。

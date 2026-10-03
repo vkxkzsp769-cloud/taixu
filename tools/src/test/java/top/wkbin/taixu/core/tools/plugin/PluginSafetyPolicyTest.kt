@@ -1,12 +1,12 @@
 package top.wkbin.taixu.core.tools.plugin
 
-import top.wkbin.taixu.core.common.plugin.PluginCapability
-import top.wkbin.taixu.core.common.plugin.PluginConsentLevel
-import top.wkbin.taixu.core.common.plugin.PluginRisk
-import top.wkbin.taixu.core.common.plugin.PluginSafetyPolicy
-import top.wkbin.taixu.core.common.plugin.PluginSlot
-import top.wkbin.taixu.core.common.plugin.PluginSlots
-import top.wkbin.taixu.core.common.plugin.SlotVerdict
+import top.wkbin.taixu.core.tools.plugin.PluginCapability
+import top.wkbin.taixu.core.tools.plugin.PluginConsentLevel
+import top.wkbin.taixu.core.tools.plugin.PluginRisk
+import top.wkbin.taixu.core.tools.plugin.PluginSafetyPolicy
+import top.wkbin.taixu.core.tools.plugin.PluginSlot
+import top.wkbin.taixu.core.tools.plugin.PluginSlots
+import top.wkbin.taixu.core.tools.plugin.SlotVerdict
 import top.wkbin.taixu.core.model.plugin.PluginManifest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

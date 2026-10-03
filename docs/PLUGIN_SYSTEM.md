@@ -25,12 +25,11 @@ schema v2 明确反转这一条：
 | 层 | 模块 | 内容 | 为什么放这里 |
 |---|---|---|---|
 | 清单数据 | `core:model` | `plugin/PluginManifest.kt` | 与 `ToolManifest` 同层；必须保持 JVM-only（不得 import `android.*`） |
-| SPI 契约 | `core:common` | `plugin/`：`TaiXuPlugin` `PluginHost` `PluginSlot` `PluginCapability` `PluginRegistry` `PluginSafetyPolicy` `PluginGrantStore` | 约定插件已给**每个 feature 模块**注入 `:core:common`，因此 UI 侧接管点无需新增任何模块依赖边；同时它是 Android 库，可以出现 `Context` |
-| 宿主实现 | `tools` | `plugin/`：`DexPluginLoader` `PluginInstaller` `DataStorePluginGrantStore` `PluginHostManager` `PluginArbitration` `PluginAndroidGates` `FloatingWindowDelegate` | 插件域本就归属 tools（`api(:core:common)` + `:core:datastore`） |
+| SPI 契约 + 宿主实现 | `tools` | `plugin/`：`TaiXuPlugin` `PluginHost` `PluginSlot` `PluginCapability` `PluginRegistry` `PluginSafetyPolicy` `PluginGrantStore` `DexPluginLoader` `PluginInstaller` `DataStorePluginGrantStore` `PluginHostManager` `PluginArbitration` `PluginAndroidGates` `FloatingWindowDelegate` | `tools` 是插件域的归属模块，且已同时依赖 `core:common / core:model / core:datastore / runtime`；`feature:chat` 又已 `implementation(project(":tools"))`（build.gradle.kts:16），因此 SPI 放这里**零新增依赖边**。（曾考虑放 `core:common`，但它不依赖 `core:model`，无法引用 v2 清单类型。） |
+| 状态存储 | `core:datastore` | `PluginStateRepository`：只存「插件 ID → 不透明 JSON」+ 审计串 | 该模块的 `settingsDataStore` 是 `internal`，必须在本模块内开新门面；序列化留在 `tools`，避免 `core:datastore` 反向依赖插件类型 |
 | 装配 | `app` | `plugin/PluginBootstrap.kt`：登记内置兜底 + 启动装载 | 只有 app 同时看得到 `feature:chat` 与 `tools` |
 
-**零新增模块、零新增模块间依赖边**：`core:datastore` 只提供「插件 ID → 不透明 JSON」的门面
-（`PluginStateRepository`），序列化在 `tools` 完成，避免反向依赖 `core:common`。
+**零新增模块、零新增模块间依赖边**。
 
 ## 3. 清单 schema v2
 

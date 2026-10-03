@@ -1,4 +1,4 @@
-package top.wkbin.taixu.core.common.plugin
+package top.wkbin.taixu.core.tools.plugin
 
 /**
  * 扩展点注册表：槽位 → 候选实现 → 当前生效实现。

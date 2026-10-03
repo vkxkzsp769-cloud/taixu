@@ -169,11 +169,11 @@ val toolsModule = module {
     // ---- 宿主能力插件体系（schema v2）：授权存储 → 安装器 → 装载器 → 管理器 → 接管点 ----
     single { top.wkbin.taixu.core.datastore.PluginStateRepository(context = get()) }
 
-    single<top.wkbin.taixu.core.common.plugin.PluginGrantStore> {
+    single<top.wkbin.taixu.core.tools.plugin.PluginGrantStore> {
         top.wkbin.taixu.core.tools.plugin.DataStorePluginGrantStore(repository = get())
     }
 
-    single { top.wkbin.taixu.core.common.plugin.PluginRegistry() }
+    single { top.wkbin.taixu.core.tools.plugin.PluginRegistry() }
 
     single<top.wkbin.taixu.core.tools.plugin.PluginCapabilityProbe> {
         top.wkbin.taixu.core.tools.plugin.SystemCapabilityProbe(context = get())

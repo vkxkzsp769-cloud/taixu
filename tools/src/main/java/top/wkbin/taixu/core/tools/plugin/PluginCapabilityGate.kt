@@ -1,9 +1,9 @@
 package top.wkbin.taixu.core.tools.plugin
 
-import top.wkbin.taixu.core.common.plugin.PluginCapability
-import top.wkbin.taixu.core.common.plugin.PluginGrantState
-import top.wkbin.taixu.core.common.plugin.PluginGrantMode
-import top.wkbin.taixu.core.common.plugin.PluginRecord
+import top.wkbin.taixu.core.tools.plugin.PluginCapability
+import top.wkbin.taixu.core.tools.plugin.PluginGrantState
+import top.wkbin.taixu.core.tools.plugin.PluginGrantMode
+import top.wkbin.taixu.core.tools.plugin.PluginRecord
 
 /**
  * 读取 Android 侧真实授权状态的门面（实现放在 app 装配层，那里能安全地拿到 Context 与系统 API）。
@@ -28,9 +28,9 @@ interface PluginPermissionRequester {
 
 /** 能力门禁下的宿主服务桥提供者。 */
 interface PluginBridgeProvider {
-    fun linux(record: PluginRecord): top.wkbin.taixu.core.common.plugin.PluginLinuxBridge? = null
-    fun storage(record: PluginRecord): top.wkbin.taixu.core.common.plugin.PluginStorageBridge? = null
-    fun agent(record: PluginRecord): top.wkbin.taixu.core.common.plugin.PluginAgentBridge? = null
+    fun linux(record: PluginRecord): top.wkbin.taixu.core.tools.plugin.PluginLinuxBridge? = null
+    fun storage(record: PluginRecord): top.wkbin.taixu.core.tools.plugin.PluginStorageBridge? = null
+    fun agent(record: PluginRecord): top.wkbin.taixu.core.tools.plugin.PluginAgentBridge? = null
 }
 
 /** 默认探针：什么都不认为已授予（保守），真实实现由 app 注入。 */

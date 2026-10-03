@@ -1,12 +1,12 @@
 package top.wkbin.taixu.core.tools.plugin
 
-import top.wkbin.taixu.core.common.plugin.FloatingWindowExtension
-import top.wkbin.taixu.core.common.plugin.PluginCapability
-import top.wkbin.taixu.core.common.plugin.PluginHost
-import top.wkbin.taixu.core.common.plugin.PluginRecord
-import top.wkbin.taixu.core.common.plugin.PluginRegistry
-import top.wkbin.taixu.core.common.plugin.PluginRisk
-import top.wkbin.taixu.core.common.plugin.PluginSlots
+import top.wkbin.taixu.core.tools.plugin.FloatingWindowExtension
+import top.wkbin.taixu.core.tools.plugin.PluginCapability
+import top.wkbin.taixu.core.tools.plugin.PluginHost
+import top.wkbin.taixu.core.tools.plugin.PluginRecord
+import top.wkbin.taixu.core.tools.plugin.PluginRegistry
+import top.wkbin.taixu.core.tools.plugin.PluginRisk
+import top.wkbin.taixu.core.tools.plugin.PluginSlots
 import top.wkbin.taixu.core.model.plugin.PluginManifest
 import android.content.Context
 import org.junit.Assert.assertEquals
@@ -140,7 +140,7 @@ class PluginOverrideTest {
     )
 
     private fun reg(pluginId: String = "overlay-pro") =
-        top.wkbin.taixu.core.common.plugin.PluginRegistration(slot.id, pluginId, 10, 1L)
+        top.wkbin.taixu.core.tools.plugin.PluginRegistration(slot.id, pluginId, 10, 1L)
 
     @Test
     fun `内置实现无条件通过仲裁`() {
@@ -166,7 +166,7 @@ class PluginOverrideTest {
 
     @Test
     fun `跨槽位注册不予承认`() {
-        val other = top.wkbin.taixu.core.common.plugin.PluginSlot<FloatingWindowExtension>(
+        val other = top.wkbin.taixu.core.tools.plugin.PluginSlot<FloatingWindowExtension>(
             id = "slot.other", label = "x", description = "y", exclusive = true, hasBuiltin = false,
         )
         assertFalse(isRegistrationApproved(reg(), other, record()))
