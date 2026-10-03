@@ -13,10 +13,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface AppDestination : NavKey
 
-
-@Serializable
-sealed interface AppDestination : NavKey
-
 @Serializable data object HomeDestination : AppDestination
 @Serializable data object AgentDestination : AppDestination
 @Serializable data object WorkspaceDestination : AppDestination
