@@ -151,7 +151,14 @@ dependencies {
 }
 
 dependencies {
-    debugImplementation(libs.leakcanary.android)
+    // LeakCanary 只随本地调试包注入；TaiXuDev 预览包（TAIXU_DEV_BUILD=1）排除它。
+    // 原因：LeakCanary 会往 debug 包里加一个属于自己的桌面入口（LeakLauncherActivity），
+    // 用户装完预览包会在桌面看到「多出来的第二个太墟」，点开却是一张空的泄漏列表，
+    // 极易被误解为安装出错。预览包面向真人试用，不该暴露调试工具入口；
+    // 日常开发调试包仍然保留完整的泄漏检测能力。
+    if (!taiXuDevBuild) {
+        debugImplementation(libs.leakcanary.android)
+    }
     implementation(project(":core:common"))
     implementation(project(":core:model"))
     implementation(project(":core:database"))
